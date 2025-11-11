@@ -9,68 +9,58 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/restcalc")
 public class RestCalcController {
 
-	private boolean isANumber(String s) {
-		return s.matches("\\d+(\\.\\d+)?");
-	}
+    private boolean isANumber(String s) {
+        return s.matches("\\d+(\\.\\d+)?");
+    }
 
-	@GetMapping("/{arg1}/plus/{arg2}")
-	public RestResponse add(@PathVariable String arg1, @PathVariable String arg2) {
+    private String formatNumber(double n) {
+        // If n is an integer (e.g., 12.0), return "12"; otherwise return the normal string form
+        if (n == Math.rint(n)) {
+            return String.valueOf((long) n);
+        }
+        return String.valueOf(n);
+    }
 
-		if ((!isANumber(arg1)) || (!isANumber(arg2))) {
-			return new RestError("Invalid arguments.");
-		}
+    @GetMapping("/{arg1}/plus/{arg2}")
+    public RestResponse add(@PathVariable String arg1, @PathVariable String arg2) {
+        if ((!isANumber(arg1)) || (!isANumber(arg2))) {
+            return new RestError("Invalid arguments.");
+        }
+        double answer = Double.parseDouble(arg1) + Double.parseDouble(arg2);
+        return new RestResponse(formatNumber(answer));
+    }
 
-		double arg1d = Double.valueOf(arg1);
-		double arg2d = Double.valueOf(arg2);
+    @GetMapping("/{arg1}/minus/{arg2}")
+    public RestResponse subtract(@PathVariable String arg1, @PathVariable String arg2) {
+        if ((!isANumber(arg1)) || (!isANumber(arg2))) {
+            return new RestError("Invalid arguments.");
+        }
+        double answer = Double.parseDouble(arg1) - Double.parseDouble(arg2);
+        return new RestResponse(formatNumber(answer));
+    }
 
-		double answer = arg1d + arg2d;
+    @GetMapping("/{arg1}/times/{arg2}")
+    public RestResponse multiply(@PathVariable String arg1, @PathVariable String arg2) {
+        if ((!isANumber(arg1)) || (!isANumber(arg2))) {
+            return new RestError("Invalid arguments.");
+        }
+        double answer = Double.parseDouble(arg1) * Double.parseDouble(arg2);
+        return new RestResponse(formatNumber(answer));
+    }
 
-		return new RestResponse(String.valueOf(answer));
-	}
+    @GetMapping("/{arg1}/dividedby/{arg2}")
+    public RestResponse divide(@PathVariable String arg1, @PathVariable String arg2) {
+        if ((!isANumber(arg1)) || (!isANumber(arg2))) {
+            return new RestError("Invalid arguments.");
+        }
+        double divisor = Double.parseDouble(arg2);
+        double dividend = Double.parseDouble(arg1);
 
-	@GetMapping("/{arg1}/minus/{arg2}")
-	public RestResponse subtract(@PathVariable String arg1, @PathVariable String arg2) {
+        if (divisor == 0.0) {
+            return new RestError("Division by zero.");
+        }
 
-		if ((!isANumber(arg1)) || (!isANumber(arg2))) {
-			return new RestError("Invalid arguments.");
-		}
-
-		double arg1d = Double.valueOf(arg1);
-		double arg2d = Double.valueOf(arg2);
-
-		double answer = arg1d - arg2d;
-
-		return new RestResponse(String.valueOf(answer));
-	}
-
-	@GetMapping("/{arg1}/times/{arg2}")
-	public RestResponse multiply(@PathVariable String arg1, @PathVariable String arg2) {
-
-		if ((!isANumber(arg1)) || (!isANumber(arg2))) {
-			return new RestError("Invalid arguments.");
-		}
-
-		double arg1d = Double.valueOf(arg1);
-		double arg2d = Double.valueOf(arg2);
-
-		double answer = arg1d * arg2d;
-
-		return new RestResponse(String.valueOf(answer));
-	}
-
-	@GetMapping("/{arg1}/dividedby/{arg2}")
-	public RestResponse divide(@PathVariable String arg1, @PathVariable String arg2) {
-
-		if ((!isANumber(arg1)) || (!isANumber(arg2))) {
-			return new RestError("Invalid arguments.");
-		}
-
-		double arg1d = Double.valueOf(arg1);
-		double arg2d = Double.valueOf(arg2);
-
-		double answer = arg1d / arg2d;
-
-		return new RestResponse(String.valueOf(answer));
-	}
-
+        double answer = dividend / divisor;
+        return new RestResponse(formatNumber(answer));
+    }
 }
